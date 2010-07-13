@@ -1,0 +1,2 @@
+nasm -f elf64 -l yo.lst yo.asm
+gcc prep.c yo.o

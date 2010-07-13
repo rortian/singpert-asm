@@ -6,19 +6,33 @@ section .text
 	global sweet
 sweet:
 
-	movddup	xmm8,xmm0	; 8 is x x
-	movddup 	xmm9,xmm1	; 9 is y y
-	movsd	xmm2,xmm0	; x at 2
-	movsd	xmm3,xmm1	; y at 3
-	unpcklpd	xmm2,xmm3  ; y x
-	unpcklpd	xmm3,xmm0  ; 
-	mulpd	xmm8,xmm2
-	mulpd	xmm9,xmm3
-	addsubpd	xmm8,xmm9 	; should be z^2 with y x
+	movsd	xmm10,xmm0
+	movsd	xmm12,xmm0
+	movsd	xmm11,xmm1
+	movsd	xmm13,xmm1
+	call		mult
+	movapd	xmm2,xmm15
+	unpcklpd	xmm0,xmm1
+	ret
+	
 
 	
 	
 	
+	
+mult:
+	
+	movddup	xmm14,xmm10
+	movddup	xmm15,xmm11
+	movsd	xmm11,xmm12
+	unpcklpd	xmm12,xmm13
+	unpcklpd	xmm13,xmm11
+	mulpd	xmm14,xmm12
+	mulpd	xmm15,xmm13
+	addsubpd	xmm14,xmm15
+	movapd	xmm15,xmm14
+	shufpd	xmm15,xmm14,1
+	ret
 	
 	
 	
