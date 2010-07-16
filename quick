@@ -1,2 +1,3 @@
-nasm -f elf64 -l yo.lst yo.asm
-gcc prep.c yo.o
+erb pertubations.erb > unique.asm
+nasm -f elf64 -l unique.lst unique.asm
+gcc prep.c unique.o
