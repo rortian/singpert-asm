@@ -1,75 +1,6 @@
 
 	
-<%	
-	powers = {}
-	
-	sample = <<EOF
-	movapd	xmm10,xmm1
-	movapd	xmm11,xmm10
-	movapd	xmm12,xmm10
-	movapd	xmm13,xmm10
-	shufpd	xmm11,xmm10,1
-	shufpd	xmm13,xmm12,1
-	call		mult
-	movapd	xmm2,xmm14
-	movapd	xmm12,xmm2
-	movapd	xmm13,xmm2
-	movapd	xmm10,xmm1
-	movapd	xmm11,xmm10
-	shufpd	xmm11,xmm10,1
-	shufpd	xmm13,xmm12,1
-	call		mult
-	movapd	xmm3,xmm14
-	movapd	xmm10,xmm2
-	movapd	xmm11,xmm10
-	movapd	xmm12,xmm10
-	movapd	xmm13,xmm10
-	shufpd	xmm11,xmm10,1
-	shufpd	xmm13,xmm12,1
-	call		mult
-	movapd	xmm4,xmm14
-	movapd	xmm12,xmm4
-	movapd	xmm13,xmm4
-	movapd	xmm10,xmm1
-	movapd	xmm11,xmm1
-	shufpd	xmm11,xmm10,1
-	shufpd	xmm13,xmm12,1
-	call		mult
-	movapd	xmm10,xmm3
-	movapd	xmm11,xmm10
-	movapd	xmm12,xmm10
-	movapd	xmm13,xmm10
-	shufpd	xmm11,xmm10,1
-	shufpd	xmm13,xmm12,1
-	call		mult
-EOF
-	
-	
-	powers['m2n1'] = <<EOF
-	movapd	xmm10,xmm1
-	movapd	xmm11,xmm10
-	movapd	xmm12,xmm10
-	movapd	xmm13,xmm10
-	shufpd	xmm11,xmm10,1
-	shufpd	xmm13,xmm12,1
-	call		mult
-	movapd	xmm2,xmm14
-	movapd	xmm10,xmm1
-	call		inv
-	movapd xmm11,xmm10
-	shufpd	xmm11,xmm10,1
-	movapd	xmm12,xmm0
-	movapd	xmm13,xmm0
-	shufpd	xmm13,xmm12,1
-	addpd	xmm14,xmm2
-	movapd	xmm1,xmm14
-EOF
 
-	
-
-	
-
-%>
 
 DEFAULT REL
 BITS 64
@@ -115,8 +46,24 @@ start:
 	mulpd	xmm2,xmm3
 	addpd	xmm1,xmm2			;ready to start raising powers
 inner:
-<%= powers['m2n1'] %>
-	
+	movapd	xmm10,xmm1
+	movapd	xmm11,xmm10
+	movapd	xmm12,xmm10
+	movapd	xmm13,xmm10
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm2,xmm14
+	movapd	xmm10,xmm1
+	call		inv
+	movapd xmm11,xmm10
+	shufpd	xmm11,xmm10,1
+	movapd	xmm12,xmm0
+	movapd	xmm13,xmm0
+	shufpd	xmm13,xmm12,1
+	addpd	xmm14,xmm2
+	movapd	xmm1,xmm14
+
 	
 	
 	
