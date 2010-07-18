@@ -31,6 +31,8 @@ sweet:
 	mov	r11,0
 	mov	r12,0
 	mov	r13,0
+	mov	r14,0
+	mov	r15,1
 	
 start:
 	mov	rcx,255
@@ -61,9 +63,18 @@ inner:
 	movapd	xmm12,xmm0
 	movapd	xmm13,xmm0
 	shufpd	xmm13,xmm12,1
+	call		mult
 	addpd	xmm14,xmm2
 	movapd	xmm1,xmm14
 
+	call		mag
+	comisd	xmm15,xmm8
+	inc		r13
+	cmovnb	rcx,r15
+	loop	inner
+hiya:
+	
+	
 	
 	
 	
