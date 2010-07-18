@@ -6,10 +6,18 @@ DEFAULT REL
 BITS 64
 
 section .text
+
 	
-	global sweet
 	
-sweet:
+	global m2n1
+	
+	
+	
+	
+	
+	
+	
+m2n1:
 	
 	movq		r12,mm4				;preserve for previous function
 	movq		r13,mm5
@@ -28,15 +36,17 @@ sweet:
 	unpcklpd	xmm0,xmm1
 	mov		r9,rsi
 	mov		r10,rdi
-	mov		r11,0
-	mov		r12,0
-	mov		r13,0
-	mov		r14,0
-	mov		r15,1
-	
-start:
-	mov	rcx,255
-	movq2dq	xmm1,mm0			;will vary later, 
+	mov		r12,r11
+	xor			r11,r12
+	mov		r12,r11
+	mov		r13,r11
+	mov		r14,r11
+	mov		r15,r11
+	inc			r15
+	mov		rbx,255
+startm2n1:
+	mov	rcx,rbx
+	movq2dq	xmm1,mm0			
 	movq2dq	xmm2,mm1
 	unpcklpd	xmm1,xmm2
 	movq2dq	xmm2,mm2
@@ -47,7 +57,7 @@ start:
 	unpcklpd	xmm3,xmm4
 	mulpd	xmm2,xmm3
 	addpd	xmm1,xmm2			;ready to start raising powers
-inner:
+innerm2n1:
 	movapd	xmm10,xmm1
 	movapd	xmm11,xmm10
 	movapd	xmm12,xmm10
@@ -71,19 +81,23 @@ inner:
 	comisd	xmm15,xmm8
 	inc		r13
 	cmovnb	rcx,r15
-	loop	inner
+	loop	innerm2n1
 	inc		r14
 	cmp	r14b,8
-	je		tomem
+	je		tomemm2n1
 	sal		r13,8
-comeback:
+comebackm2n1:
 	inc		r11
 	cmp	r9,r11
-	je		newrow
-	jmp		start
+	je		newrowm2n1
+	jmp		startm2n1
 	
+donem2n1:
+	cmp	r14,r11
+	je		reallydonem2n1
+	jmp		lastwritem2n1
 	
-done:	
+reallydonem2n1:	
 	movq	mm4,r12			;return to initial values
 	movq	mm5,r13
 	movq	mm6,r14
@@ -91,8 +105,7 @@ done:
 	ret
 	
 
-
-tomem:
+tomemm2n1:
 
 	movnti	[rdx],r13
 	mov	r15,r13
@@ -101,9 +114,9 @@ tomem:
 	mov	r14,r13
 	inc		r15
 	lea		rdx,[rdx+8]
-	jmp		comeback
-	
-newrow:
+	jmp		comebackm2n1
+
+newrowm2n1:
 
 	mov	r15,r11
 	xor		r11,r15
@@ -111,8 +124,20 @@ newrow:
 	inc		r15
 	inc		r12
 	cmp	r10,r12
-	je		done
-	jmp		start
+	je		donem2n1
+	jmp		startm2n1
+	
+lastwritem2n1:
+
+	mov	rcx,3
+	mov	rax,8
+	sub		rax,r14
+	dec		rax
+	sal		rax,cl
+	mov	rcx,rax
+	sal		r13,cl
+	movnti	[rdx],r13
+	jmp		reallydonem2n1
 	
 	
 	

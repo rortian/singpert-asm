@@ -3,6 +3,18 @@
 <%	
 	powers = {}
 	
+	finish_types = {}
+	
+	bytes = {}
+	
+	bytes['max_it'] = 'mov		rbx,255'
+	
+	bytes['per_qw'] = 8
+	
+	finish_types['bytes'] = bytes
+	
+	functions = ['m2n1']
+	
 	mult = <<EOF
 	movddup	xmm14,xmm10
 	movddup	xmm15,xmm11
@@ -103,10 +115,18 @@ DEFAULT REL
 BITS 64
 
 section .text
+
+	<%	functions.each do |f_name| %>
 	
-	global sweet
+	<%= "global #{f_name}" %>
 	
-sweet:
+	<%	end %>
+	
+	<%	functions.each do |f_name| %>
+	
+	<%	ret_size = 'bytes' %>
+	
+<%= "#{f_name}:" %>
 	
 	movq		r12,mm4				;preserve for previous function
 	movq		r13,mm5
@@ -125,15 +145,17 @@ sweet:
 	unpcklpd	xmm0,xmm1
 	mov		r9,rsi
 	mov		r10,rdi
-	mov		r11,0
-	mov		r12,0
-	mov		r13,0
-	mov		r14,0
-	mov		r15,1
-	
-start:
-	mov	rcx,255
-	movq2dq	xmm1,mm0			;will vary later, 
+	mov		r12,r11
+	xor			r11,r12
+	mov		r12,r11
+	mov		r13,r11
+	mov		r14,r11
+	mov		r15,r11
+	inc			r15
+	<%= bytes['max_it'] %>
+<%= "start#{f_name}:" %>
+	mov	rcx,rbx
+	movq2dq	xmm1,mm0			
 	movq2dq	xmm2,mm1
 	unpcklpd	xmm1,xmm2
 	movq2dq	xmm2,mm2
@@ -144,25 +166,29 @@ start:
 	unpcklpd	xmm3,xmm4
 	mulpd	xmm2,xmm3
 	addpd	xmm1,xmm2			;ready to start raising powers
-inner:
-<%= powers['m2n1'] %>
+<%= "inner#{f_name}:" %>
+<%= powers[f_name] %>
 	call		mag
 	comisd	xmm15,xmm8
 	inc		r13
 	cmovnb	rcx,r15
-	loop	inner
+	loop	<%= "inner#{f_name}" %>
 	inc		r14
-	cmp	r14b,8
-	je		tomem
-	sal		r13,8
-comeback:
+	cmp	r14b,<%=finish_types[ret_size]['per_qw'] %>
+	je		<%= "tomem#{f_name}" %>
+	sal		r13,<%= finish_types[ret_size]['per_qw'] %>
+<%= "comeback#{f_name}:" %>
 	inc		r11
 	cmp	r9,r11
-	je		newrow
-	jmp		start
+	je		<%= "newrow#{f_name}" %>
+	jmp		<%= "start#{f_name}" %>
 	
+<%= "done#{f_name}:" %>
+	cmp	r14,r11
+	je		<%= "reallydone#{f_name}" %>
+	jmp		<%= "lastwrite#{f_name}" %>
 	
-done:	
+<%= "reallydone#{f_name}:" %>	
 	movq	mm4,r12			;return to initial values
 	movq	mm5,r13
 	movq	mm6,r14
@@ -170,8 +196,7 @@ done:
 	ret
 	
 
-
-tomem:
+<%= "tomem#{f_name}:" %>
 
 	movnti	[rdx],r13
 	mov	r15,r13
@@ -180,9 +205,9 @@ tomem:
 	mov	r14,r13
 	inc		r15
 	lea		rdx,[rdx+8]
-	jmp		comeback
-	
-newrow:
+	jmp		<%= "comeback#{f_name}" %>
+
+<%= "newrow#{f_name}:" %>
 
 	mov	r15,r11
 	xor		r11,r15
@@ -190,10 +215,22 @@ newrow:
 	inc		r15
 	inc		r12
 	cmp	r10,r12
-	je		done
-	jmp		start
+	je		<%= "done#{f_name}" %>
+	jmp		<%= "start#{f_name}" %>
 	
+<%= "lastwrite#{f_name}:" %>
+
+	mov	rcx,3
+	mov	rax,<%= finish_types[ret_size]['per_qw'] %>
+	sub		rax,r14
+	dec		rax
+	sal		rax,cl
+	mov	rcx,rax
+	sal		r13,cl
+	movnti	[rdx],r13
+	jmp		<%= "reallydone#{f_name}" %>
 	
+	<% end %>
 	
 mult:
 	
