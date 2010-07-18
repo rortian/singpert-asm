@@ -11,28 +11,28 @@ section .text
 	
 sweet:
 	
-	movq	r12,mm4				;preserve for previous function
-	movq	r13,mm5
-	movq	r14,mm6
-	movq	r15,mm7
-	mov	r10,__float64__(-1.0)
-	movq	xmm8,r10
-	mov	r10,__float64__(3.0)
+	movq		r12,mm4				;preserve for previous function
+	movq		r13,mm5
+	movq		r14,mm6
+	movq		r15,mm7
+	mov		r10,__float64__(-1.0)
+	movq		xmm8,r10
+	mov		r10,__float64__(3.0)
 	movddup	xmm9,xmm8
-	mulsd	xmm9,xmm8			;creates conujgation number
-	movq	xmm8,r10				;sets up 3 for comparisons
+	mulsd		xmm9,xmm8			;creates conujgation number
+	movq		xmm8,r10				;sets up 3 for comparisons
 	movdq2q	mm0,xmm2			;these are the initial values
 	movdq2q	mm1,xmm3
 	movdq2q	mm2,xmm4
 	movdq2q	mm3,xmm5
 	unpcklpd	xmm0,xmm1
-	mov	r9,rsi
-	mov	r10,rdi
-	mov	r11,0
-	mov	r12,0
-	mov	r13,0
-	mov	r14,0
-	mov	r15,1
+	mov		r9,rsi
+	mov		r10,rdi
+	mov		r11,0
+	mov		r12,0
+	mov		r13,0
+	mov		r14,0
+	mov		r15,1
 	
 start:
 	mov	rcx,255
@@ -72,13 +72,18 @@ inner:
 	inc		r13
 	cmovnb	rcx,r15
 	loop	inner
-hiya:
+	inc		r14
+	cmp	r14b,8
+	je		tomem
+	sal		r13,8
+comeback:
+	inc		r11
+	cmp	r9,r11
+	je		newrow
+	jmp		start
 	
 	
-	
-	
-	
-	
+done:	
 	movq	mm4,r12			;return to initial values
 	movq	mm5,r13
 	movq	mm6,r14
@@ -86,7 +91,28 @@ hiya:
 	ret
 	
 
+
+tomem:
+
+	movnti	[rdx],r13
+	mov	r15,r13
+	xor		r13,r15
+	mov	r15,r13
+	mov	r14,r13
+	inc		r15
+	lea		rdx,[rdx+8]
+	jmp		comeback
 	
+newrow:
+
+	mov	r15,r11
+	xor		r11,r15
+	mov	r15,r11
+	inc		r15
+	inc		r12
+	cmp	r10,r12
+	je		done
+	jmp		start
 	
 	
 	
@@ -100,6 +126,7 @@ mult:
 	mulpd	xmm14,xmm12
 	mulpd	xmm15,xmm13
 	addsubpd	xmm14,xmm15
+
 	ret
 	
 
@@ -111,6 +138,7 @@ inv:
 	movddup	xmm12,xmm11
 	divpd	xmm10,xmm12
 	mulpd	xmm10,xmm9
+
 	ret
 	
 mag:
@@ -118,6 +146,7 @@ mag:
 	movapd	xmm15,xmm14
 	mulpd	xmm15,xmm14
 	haddpd	xmm15,xmm14
+
 	ret
 	
 
