@@ -19,6 +19,7 @@ section .text
 	
 m2n1:
 	
+	mov		rax,8
 	movq		r12,mm4				;preserve for previous function
 	movq		r13,mm5
 	movq		r14,mm6
@@ -56,34 +57,12 @@ startm2n1:
 	cvtsi2sd	xmm4,r12
 	unpcklpd	xmm3,xmm4
 	mulpd	xmm2,xmm3
-	addpd	xmm1,xmm2			;ready to start raising powers
-innerm2n1:
-	movapd	xmm10,xmm1
-	movapd	xmm11,xmm10
-	movapd	xmm12,xmm10
-	movapd	xmm13,xmm10
-	shufpd	xmm11,xmm10,1
-	shufpd	xmm13,xmm12,1
-	call		mult
-	movapd	xmm2,xmm14
-	movapd	xmm10,xmm1
-	call		inv
-	movapd xmm11,xmm10
-	shufpd	xmm11,xmm10,1
-	movapd	xmm12,xmm0
-	movapd	xmm13,xmm0
-	shufpd	xmm13,xmm12,1
-	call		mult
-	addpd	xmm14,xmm2
-	movapd	xmm1,xmm14
-
-	call		mag
-	comisd	xmm15,xmm8
-	inc		r13
-	cmovnb	rcx,r15
+	addpd	xmm1,xmm2
+	jmp		innerm2n1
+inloopm2n1:
 	loop	innerm2n1
 	inc		r14
-	cmp	r14b,8
+	cmp	r14,rax
 	je		tomemm2n1
 	sal		r13,8
 comebackm2n1:
@@ -91,6 +70,53 @@ comebackm2n1:
 	cmp	r9,r11
 	je		newrowm2n1
 	jmp		startm2n1
+
+innerm2n1:
+	movapd	xmm10,xmm1
+	movapd	xmm11,xmm10
+	movapd	xmm12,xmm10
+	movapd	xmm13,xmm10
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	movddup	xmm14,xmm10
+	movddup	xmm15,xmm11
+	movsd	xmm11,xmm12
+	unpcklpd	xmm12,xmm13
+	unpcklpd	xmm13,xmm11
+	mulpd	xmm14,xmm12
+	mulpd	xmm15,xmm13
+	addsubpd	xmm14,xmm15
+	movapd	xmm2,xmm14
+	movapd	xmm10,xmm1
+	movapd	xmm11,xmm10
+	mulpd	xmm11,xmm10
+	haddpd	xmm11,xmm10
+	movddup	xmm12,xmm11
+	divpd	xmm10,xmm12
+	mulpd	xmm10,xmm9
+	movapd xmm11,xmm10
+	shufpd	xmm11,xmm10,1
+	movapd	xmm12,xmm0
+	movapd	xmm13,xmm0
+	shufpd	xmm13,xmm12,1
+	movddup	xmm14,xmm10
+	movddup	xmm15,xmm11
+	movsd	xmm11,xmm12
+	unpcklpd	xmm12,xmm13
+	unpcklpd	xmm13,xmm11
+	mulpd	xmm14,xmm12
+	mulpd	xmm15,xmm13
+	addsubpd	xmm14,xmm15
+	addpd	xmm14,xmm2
+	movapd	xmm1,xmm14
+
+	movapd	xmm15,xmm14
+	mulpd	xmm15,xmm14
+	haddpd	xmm15,xmm14
+	comisd	xmm15,xmm8
+	inc		r13
+	cmovnb	rcx,r15
+	jmp		inloopm2n1
 	
 donem2n1:
 	cmp	r14,r11
