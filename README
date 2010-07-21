@@ -45,4 +45,4 @@ WHAT'S THE DEAL
 So, the only file you need to produce everything is timesaver.rb. You can ./timesaver.rb or ruby timesaver.rb
 to produce the files.
 
-To perform that simple operation, your system will need nasm and gcc.
+To perform that simple operation, your system will need nasm, gcc and ruby.

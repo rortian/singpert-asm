@@ -2,7 +2,7 @@
 
 require 'erb'
 
-ms = {2 =>[1,2],3=>[1]}
+ms = {2 =>[1,2,3,4],3=>[1,2,3],4=>[1,2,4]}
 
 assembly_generator = %q{
 <%	
@@ -91,6 +91,64 @@ debug['m2n2'] = <<EOF
 	movapd	xmm1,xmm14
 EOF
 
+debug['m2n3'] = <<EOF
+	movapd	xmm10,xmm1
+	movapd	xmm11,xmm10
+	movapd	xmm12,xmm10
+	movapd	xmm13,xmm10
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm2,xmm14
+	movapd	xmm10,xmm2
+	movapd	xmm11,xmm2
+	movapd	xmm12,xmm1
+	movapd	xmm13,xmm1
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm3,xmm14
+	movapd	xmm10,xmm14
+	call		inv
+	movapd xmm11,xmm10
+	shufpd	xmm11,xmm10,1
+	movapd	xmm12,xmm0
+	movapd	xmm13,xmm0
+	shufpd	xmm13,xmm12,1
+	call		mult
+	addpd	xmm14,xmm2
+	movapd	xmm1,xmm14
+EOF
+
+debug['m2n4'] = <<EOF
+	movapd	xmm10,xmm1
+	movapd	xmm11,xmm10
+	movapd	xmm12,xmm10
+	movapd	xmm13,xmm10
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm2,xmm14
+	movapd	xmm10,xmm2
+	movapd	xmm11,xmm2
+	movapd	xmm12,xmm2
+	movapd	xmm13,xmm2
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm4,xmm14
+	movapd	xmm10,xmm4
+	call		inv
+	movapd xmm11,xmm10
+	shufpd	xmm11,xmm10,1
+	movapd	xmm12,xmm0
+	movapd	xmm13,xmm0
+	shufpd	xmm13,xmm12,1
+	call		mult
+	addpd	xmm14,xmm2
+	movapd	xmm1,xmm14
+EOF
+
 
 debug['m3n1'] = <<EOF
 	movapd	xmm10,xmm1
@@ -118,6 +176,151 @@ debug['m3n1'] = <<EOF
 	shufpd	xmm13,xmm12,1
 	call		mult
 	addpd	xmm14,xmm3
+	movapd	xmm1,xmm14
+EOF
+
+debug['m3n2'] = <<EOF
+	movapd	xmm10,xmm1
+	movapd	xmm11,xmm10
+	movapd	xmm12,xmm10
+	movapd	xmm13,xmm10
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm2,xmm14
+	movapd	xmm10,xmm2
+	movapd	xmm11,xmm2
+	movapd	xmm12,xmm1
+	movapd	xmm13,xmm1
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm3,xmm14
+	movapd	xmm10,xmm2
+	call		inv
+	movapd xmm11,xmm10
+	shufpd	xmm11,xmm10,1
+	movapd	xmm12,xmm0
+	movapd	xmm13,xmm0
+	shufpd	xmm13,xmm12,1
+	call		mult
+	addpd	xmm14,xmm3
+	movapd	xmm1,xmm14
+EOF
+
+debug['m3n3'] = <<EOF
+	movapd	xmm10,xmm1
+	movapd	xmm11,xmm10
+	movapd	xmm12,xmm10
+	movapd	xmm13,xmm10
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm2,xmm14
+	movapd	xmm10,xmm2
+	movapd	xmm11,xmm2
+	movapd	xmm12,xmm1
+	movapd	xmm13,xmm1
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm3,xmm14
+	movapd	xmm10,xmm14
+	call		inv
+	movapd xmm11,xmm10
+	shufpd	xmm11,xmm10,1
+	movapd	xmm12,xmm0
+	movapd	xmm13,xmm0
+	shufpd	xmm13,xmm12,1
+	call		mult
+	addpd	xmm14,xmm3
+	movapd	xmm1,xmm14
+EOF
+
+debug['m4n1'] = <<EOF
+	movapd	xmm10,xmm1
+	movapd	xmm11,xmm10
+	movapd	xmm12,xmm10
+	movapd	xmm13,xmm10
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm2,xmm14
+	movapd	xmm10,xmm2
+	movapd	xmm11,xmm2
+	movapd	xmm12,xmm2
+	movapd	xmm13,xmm2
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm4,xmm14
+	movapd	xmm10,xmm1
+	call		inv
+	movapd xmm11,xmm10
+	shufpd	xmm11,xmm10,1
+	movapd	xmm12,xmm0
+	movapd	xmm13,xmm0
+	shufpd	xmm13,xmm12,1
+	call		mult
+	addpd	xmm14,xmm4
+	movapd	xmm1,xmm14
+EOF
+
+debug['m4n2'] = <<EOF
+	movapd	xmm10,xmm1
+	movapd	xmm11,xmm10
+	movapd	xmm12,xmm10
+	movapd	xmm13,xmm10
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm2,xmm14
+	movapd	xmm10,xmm2
+	movapd	xmm11,xmm2
+	movapd	xmm12,xmm2
+	movapd	xmm13,xmm2
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm4,xmm14
+	movapd	xmm10,xmm1
+	call		inv
+	movapd xmm11,xmm10
+	shufpd	xmm11,xmm10,1
+	movapd	xmm12,xmm0
+	movapd	xmm13,xmm0
+	shufpd	xmm13,xmm12,1
+	call		mult
+	addpd	xmm14,xmm4
+	movapd	xmm1,xmm14
+EOF
+
+debug['m4n4'] = <<EOF
+	movapd	xmm10,xmm1
+	movapd	xmm11,xmm10
+	movapd	xmm12,xmm10
+	movapd	xmm13,xmm10
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm2,xmm14
+	movapd	xmm10,xmm2
+	movapd	xmm11,xmm2
+	movapd	xmm12,xmm2
+	movapd	xmm13,xmm2
+	shufpd	xmm11,xmm10,1
+	shufpd	xmm13,xmm12,1
+	call		mult
+	movapd	xmm4,xmm14
+	movapd	xmm10,xmm4
+	call		inv
+	movapd xmm11,xmm10
+	shufpd	xmm11,xmm10,1
+	movapd	xmm12,xmm0
+	movapd	xmm13,xmm0
+	shufpd	xmm13,xmm12,1
+	call		mult
+	addpd	xmm14,xmm4
 	movapd	xmm1,xmm14
 EOF
 
