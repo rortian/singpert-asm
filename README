@@ -1,0 +1,48 @@
+Background on what this does can be seen at blog.pseudopattern.com
+
+SYSTEM REQUIREMENTS
+
+You need to be running a 64-bit OS (atm only the Linux ABI is implemented) on a CPU that supports
+SSE3 instuctions.  According to Wikipedia these processors suffice:
+
+AMD:
+Athlon 64 (since Venice Stepping E3 and San Diego Stepping E4)
+Athlon 64 X2
+Athlon 64 FX (since San Diego Stepping E4)
+Opteron (since Stepping E4)
+Sempron (since Palermo. Stepping E3)
+Phenom
+Phenom II
+Athlon II
+Turion 64
+Turion 64 X2
+
+Intel:
+Celeron D
+Celeron 420, 430 and 440
+Pentium 4 (since Prescott)
+Pentium D
+Pentium Dual-Core
+Pentium Extreme Edition (but NOT Pentium 4 Extreme Edition)
+Intel Core Duo
+Intel Core Solo
+Intel Core 2 Duo
+Intel Core 2 Extreme
+Intel Core 2 Quad
+Xeon (since Nocona)
+Atom
+Intel Core i5
+Intel Core i7
+
+VIA/Centaur:
+C7
+Nano
+Transmeta
+Efficeon TM88xx (NOT Model Numbers TM86xx)
+
+WHAT'S THE DEAL
+
+So, the only file you need to produce everything is timesaver.rb. You can ./timesaver.rb or ruby timesaver.rb
+to produce the files.
+
+To perform that simple operation, your system will need nasm and gcc.
