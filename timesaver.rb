@@ -2,6 +2,7 @@
 
 require 'erb'
 
+ms = {2 =>[1,2],3=>[1]}
 
 assembly_generator = %q{
 <%	
@@ -19,8 +20,6 @@ assembly_generator = %q{
 	bytes['bits'] = 8
 	
 	finish_types['bytes'] = bytes
-	
-	functions = ['m2n1','m2n2','m3n1']
 	
 	mult = <<EOF
 	movddup	xmm14,xmm10
@@ -131,6 +130,10 @@ debug.each_key do |key|
 	powers[key] = str.sub(/\tcall\t*inv\n/,inv)
 end
 	
+actual = powers
+if(debugging)
+	actual = debug
+end
 
 	
 
@@ -206,7 +209,7 @@ section .text
 	jmp		<%= "start#{f_name}" %>
 
 <%= "inner#{f_name}:" %>
-<%= powers[f_name] %>
+<%= actual[f_name] %>
 	movapd	xmm15,xmm14
 	mulpd	xmm15,xmm14
 	haddpd	xmm15,xmm14
@@ -282,31 +285,33 @@ mag:
 }
 
 
-switch_builder =<<EOF
+switch_builder= %q{
+<% functions.each do |f| %>
+<%="extern void #{f}();" %>
 
-extern void m2n1();
+<% end %>
 
-extern void m2n2();
 
 void pertubations(int m,int n,double real,double imag,double xinit,double yinit,double deltax,double deltay,int x,int y,char *array){
 	switch(m){
-		case 2:
+		<% ms.each_key do |m| %>
+		<%= "case #{m}:" %>
 			switch(n){
-				case 1:
-					m2n1(real,imag,xinit,yinit,deltax,deltay,x,y,array);
+				<% ms[m].each do |n| %>
+				<% current = "m#{m}n#{n}" %>
+				<%= "case #{n}:" %>
+					<%= "#{current}(real,imag,xinit,yinit,deltax,deltay,x,y,array);" %>
 					break;
-				case 2:
-					m2n2(real,imag,xinit,yinit,deltax,deltay,x,y,array);
-					break;
+				<% end %>
 			}
 			break;
+		<% end %>
 	}
 }
+}
 
-EOF
 
-
-simple =<<EOF
+simple = %q{
 
 #include <math.h>
 #include <stdlib.h>
@@ -318,15 +323,67 @@ int main(){
 	char hi,there;
 	
 	c = malloc((100*100+8)*sizeof(char));
-	pertubations(2,1,0.18,0.02,-0.65,-0.65,0.01,0.01,25,25,c);
+	<% ms.each_key do |m| %>
+	<% ms[m].each do |n| %>
+	<%= "pertubations(#{m},#{n},0.18,0.02,-0.65,-0.65,0.01,0.01,25,25,c);" %>
 	hi = c[0];
 	there = c[1];
+	<% end %>
+	<% end %>
 	return 0;
 }
+}
 
-EOF
+debugging = false
+if(ARGV.size > 0)
+	if(ARGV[0] == '-debug')
+		debugging = true
+	end
+end
 
-	
+
+functions = []
+
+ms.each_key do |m|
+	ms[m].each do |n|
+		functions << "m#{m}n#{n}"
+	end
+end
+
+switcher = ERB.new(switch_builder)
+switch = switcher.result
+
+allfunctions = File.new('allfunctions.c','w')
+allfunctions.puts switch
+allfunctions.close
+
+sim = ERB.new(simple)
+
+prep = File.new('prep.c','w')
+prep.puts sim.result
+prep.close
+
+assembly = ERB.new(assembly_generator)
+
+unique = File.new('unique.asm','w')
+unique.puts assembly.result
+unique.close
+
+puts "nasm:"
+puts `nasm -f elf64 -l unique.lst unique.asm`
+puts "building executable:"
+puts `gcc -g -o unique prep.c unique.o`
+puts "building library front-end:"
+puts `gcc -c -fPIC allfunctions.c -o allfunctions.o`
+puts "building library:"
+puts `gcc -shared -Wl,-soname,libpert.so.1 -o libpert.so.1.0.1 allfunctions.o unique.o`
+
+
+
+
+
+
+
 	
 	
 	

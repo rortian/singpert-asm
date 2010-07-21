@@ -1,6 +1,0 @@
-erb pertubations.erb > unique.asm
-nasm -f elf64 -l unique.lst unique.asm
-gcc -g -o unique prep.c unique.o 
-gcc -c -fPIC allfunctions.c -o allfunctions.o
-gcc -shared -Wl,-soname,libpert.so.1 -o libpert.so.1.0.1 allfunctions.o unique.o
-
