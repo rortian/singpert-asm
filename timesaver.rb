@@ -538,11 +538,6 @@ int main(){
 }
 
 debugging = false
-if(ARGV.size > 0)
-	if(ARGV[0] == '-debug')
-		debugging = true
-	end
-end
 
 
 functions = []
@@ -568,14 +563,26 @@ prep.close
 
 assembly = ERB.new(assembly_generator)
 
+debugging = false
+
 unique = File.new('unique.asm','w')
 unique.puts assembly.result
 unique.close
 
+debugging = true
+
+unique_debug = File.new('unique-debug.asm','w')
+unique_debug.puts assembly.result
+unique_debug.close
+
+
+
 puts "nasm:"
 puts `nasm -f elf64 -l unique.lst unique.asm`
+puts `nasm -f elf64 -l unique-debug.lst unique-debug.asm`
 puts "building executable:"
 puts `gcc -g -o unique prep.c unique.o`
+puts `gcc -g -o unique-debug prep.c unique-debug.o`
 puts "building library front-end:"
 puts `gcc -c -fPIC allfunctions.c -o allfunctions.o`
 puts "building library:"
